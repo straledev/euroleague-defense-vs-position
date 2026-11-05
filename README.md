@@ -4,7 +4,7 @@
 
 How many points every EuroLeague team allows to opposing **guards, forwards and centers**, game by game and adjusted for the strength of the players it faced. Updated every day.
 
-**Live dashboard:** [your-app.streamlit.app](https://your-app.streamlit.app)
+**Live dashboard:** [euroleague-defense-vs-position.streamlit.app](https://euroleague-defense-vs-position.streamlit.app)
 
 Built on [euroleague-fantasy-data](https://github.com/straledev/euroleague-fantasy-data), which provides verified box scores and EuroLeague Fantasy positions.
 
