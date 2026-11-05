@@ -62,46 +62,70 @@ st.caption(
     f"{meta.get('data_updated_utc', '?')} UTC · positions from EuroLeague Fantasy"
 )
 
+# how far above (+) or below (-) the league average each team is against each position,
+# averaged over the three windows: the same rule that picks "Weakest vs"
+for p in POSITIONS:
+    cols = [f"{p.lower()}_last{n}" for n in WINDOWS]
+    recent[f"{p.lower()}_pct"] = (recent[cols] / recent[cols].mean()).mean(axis=1).sub(1).mul(100)
+
 c1, c2, c3 = st.columns(3)
 for col, pos in zip((c1, c2, c3), POSITIONS):
-    t = recent[recent["weakest_vs"] == pos].head(1)
-    if t.empty:
-        col.metric(f"Weakest vs {LABEL[pos].lower()}", "—")
-    else:
-        r = t.iloc[0]
-        col.metric(f"Weakest vs {LABEL[pos].lower()}", r["team_name"],
-                   f"{r['weakest_vs_pct']:+.0f}% vs league average", delta_color="inverse")
+    r = recent.sort_values(f"{pos.lower()}_pct", ascending=False).iloc[0]
+    col.metric(f"Weakest vs {LABEL[pos].lower()}", r["team_name"],
+               f"{r[f'{pos.lower()}_pct']:+.0f}% vs league average", delta_color="inverse")
 
 tab_form, tab_team, tab_season, tab_method = st.tabs(
     ["Recent form", "Team detail", "Season (opponent-adjusted)", "Method"])
 
 # ---------------------------------------------------------------- recent form
 with tab_form:
-    st.markdown("Points per game allowed to opposing **guards, forwards and centers** over each team's "
-                "last 3, 5 and 10 games. **Red** = more than the league average for that column, "
-                "**blue** = less. The last column is the position the team is weakest against.")
     f1, f2 = st.columns([1, 2])
     focus = f1.radio("Show", ["All positions"] + [LABEL[p] for p in POSITIONS], horizontal=True)
-    sort_by = f2.selectbox("Sort by", ["Biggest weakness"] + [f"{LABEL[p]} last {n}" for p in POSITIONS for n in WINDOWS])
+    one = next((p for p in POSITIONS if LABEL[p] == focus), None)
 
     view = recent.copy()
-    if sort_by != "Biggest weakness":
+
+    if one is None:
+        st.markdown("Points per game allowed to opposing **guards, forwards and centers** over each team's "
+                    "last 3, 5 and 10 games. **Red** = more than the league average for that column, "
+                    "**blue** = less. The last column is the position each team is weakest against.")
+        first = "Biggest weakness"
+        options = [first] + [f"{LABEL[p]} last {n}" for p in POSITIONS for n in WINDOWS]
+    else:
+        st.markdown(f"Points per game allowed to opposing **{LABEL[one].lower()}** over each team's last 3, 5 "
+                    f"and 10 games. The last column says how far above (+) or below (−) the league average "
+                    f"the team is against {LABEL[one].lower()}, so the weakest defenses are at the top.")
+        first = f"Weakest vs {LABEL[one].lower()}"
+        options = [first] + [f"{LABEL[one]} last {n}" for n in WINDOWS]
+    sort_by = f2.selectbox("Sort by", options, key=f"sort_{focus}")
+
+    if sort_by == "Biggest weakness":
+        view = view.sort_values("weakest_vs_pct", ascending=False)
+    elif sort_by.startswith("Weakest vs"):
+        view = view.sort_values(f"{one.lower()}_pct", ascending=False)
+    else:
         pos_label, _, n = sort_by.rpartition(" last ")
         pos = next(p for p in POSITIONS if LABEL[p] == pos_label)
         view = view.sort_values(f"{pos.lower()}_last{n}", ascending=False)
 
-    shown = POSITIONS if focus == "All positions" else [p for p in POSITIONS if LABEL[p] == focus]
+    shown = POSITIONS if one is None else [one]
     stat_cols = [f"{p.lower()}_last{n}" for p in shown for n in WINDOWS]
     rename = {f"{p.lower()}_last{n}": f"{LABEL[p]} L{n}" for p in POSITIONS for n in WINDOWS}
     rename.update(team_name="Team", games="Games", weakest_vs="Weakest vs", weakest_vs_pct="vs avg %")
 
-    table = view[["team_name", "games"] + stat_cols + ["weakest_vs", "weakest_vs_pct"]].copy()
-    table["weakest_vs"] = table["weakest_vs"].map(LABEL)
+    if one is None:
+        table = view[["team_name", "games"] + stat_cols + ["weakest_vs", "weakest_vs_pct"]].copy()
+        table["weakest_vs"] = table["weakest_vs"].map(LABEL)
+        pct_col = "vs avg %"
+    else:
+        pct_col = f"{LABEL[one]} vs avg %"
+        table = view[["team_name", "games"] + stat_cols + [f"{one.lower()}_pct"]].copy()
+        rename[f"{one.lower()}_pct"] = pct_col
     table = table.rename(columns=rename)
     styled = (table.style
               .apply(shade, subset=[rename[c] for c in stat_cols])
-              .apply(shade_pct, subset=["vs avg %"])
-              .format({rename[c]: "{:.1f}" for c in stat_cols} | {"vs avg %": "{:+.0f}%"}))
+              .apply(shade_pct, subset=[pct_col])
+              .format({rename[c]: "{:.1f}" for c in stat_cols} | {pct_col: "{:+.0f}%"}))
     st.dataframe(styled, hide_index=True, width="stretch", height=740)
     st.caption("Early in the season L10 covers every game played so far.")
 
