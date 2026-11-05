@@ -4,6 +4,8 @@
 
 How many points every EuroLeague team allows to opposing **guards, forwards and centers**, game by game and adjusted for the strength of the players it faced. Updated every day.
 
+**Live dashboard:** [your-app.streamlit.app](https://your-app.streamlit.app)
+
 Built on [euroleague-fantasy-data](https://github.com/straledev/euroleague-fantasy-data), which provides verified box scores and EuroLeague Fantasy positions.
 
 ## The tables
@@ -68,6 +70,13 @@ The underlying dataset verifies every game against the official final score befo
 pip install -r requirements.txt
 python -m pytest
 python -m src.build --season 2026-27
+```
+
+Dashboard:
+
+```bash
+pip install streamlit
+streamlit run app/streamlit_app.py
 ```
 
 The data is read straight from GitHub. To use a local clone of the dataset instead, set `EL_DATA_DIR` to its `data` folder.
