@@ -1,0 +1,30 @@
+{
+  "season": "2026-27",
+  "built_utc": "2026-11-05 21:50",
+  "games": 96,
+  "last_complete_round": 9,
+  "games_after_last_complete_round": 6,
+  "data_updated_utc": "2026-11-05 21:48",
+  "team_names": {
+    "ASV": "LDLC ASVEL",
+    "BAR": "FC Barcelona",
+    "BAS": "Baskonia",
+    "BES": "Beşiktaş",
+    "DUB": "Dubai Basketball",
+    "HTA": "Hapoel Tel Aviv",
+    "IST": "Anadolu Efes",
+    "MAD": "Real Madrid",
+    "MIL": "Olimpia Milano",
+    "MUN": "Bayern München",
+    "OLY": "Olympiacos",
+    "PAM": "Valencia Basket",
+    "PAN": "Panathinaikos",
+    "PAR": "Partizan",
+    "PRS": "Paris Basketball",
+    "RED": "Crvena zvezda",
+    "TEL": "Maccabi Tel Aviv",
+    "ULK": "Fenerbahçe",
+    "VIR": "Virtus Bologna",
+    "ZAL": "Žalgiris"
+  }
+}
