@@ -1,10 +1,10 @@
 {
   "season": "2026-27",
-  "built_utc": "2026-11-07 14:21",
-  "games": 100,
+  "built_utc": "2026-11-12 16:16",
+  "games": 102,
   "last_complete_round": 10,
-  "games_after_last_complete_round": 0,
-  "data_updated_utc": "2026-11-07 13:28",
+  "games_after_last_complete_round": 2,
+  "data_updated_utc": "2026-11-12 15:32",
   "team_names": {
     "ASV": "LDLC ASVEL",
     "BAR": "FC Barcelona",
